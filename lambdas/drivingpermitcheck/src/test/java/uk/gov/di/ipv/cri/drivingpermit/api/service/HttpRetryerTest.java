@@ -2,6 +2,7 @@ package uk.gov.di.ipv.cri.drivingpermit.api.service;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,7 @@ import uk.gov.di.ipv.cri.drivingpermit.util.HttpResponseFixtures;
 import uk.gov.di.ipv.cri.drivingpermit.util.HttpRetryStatusConfigFixtures;
 
 import java.io.IOException;
-import java.net.http.HttpConnectTimeoutException;
+import java.net.SocketTimeoutException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -95,15 +96,18 @@ class HttpRetryerTest {
     @ParameterizedTest
     @CsvSource({
         "IOException, false", // No Retry
-        "HttpConnectTimeoutException, true", // Retry Expected
+        "ConnectTimeoutException, true", // Retry Expected
+        "SocketTimeoutException, true", // Retry Expected
     })
-    void shouldOnlyRetryWhenIOExceptionIsHttpConnectTimeoutException(
+    void shouldOnlyRetryWhenIOExceptionIsARetryableException(
             String exceptionToThrow, boolean retryExpected) throws IOException {
 
         final Exception exception;
 
-        if (exceptionToThrow.equals("HttpConnectTimeoutException")) {
-            exception = new HttpConnectTimeoutException("TestHttpConnectTimeoutException");
+        if (exceptionToThrow.equals("ConnectTimeoutException")) {
+            exception = new ConnectTimeoutException("TestConnectTimeoutException");
+        } else if (exceptionToThrow.equals("SocketTimeoutException")) {
+            exception = new SocketTimeoutException("TestSocketTimeoutException");
         } else {
             exception = new IOException("TestGeneralIOException");
         }
@@ -136,9 +140,13 @@ class HttpRetryerTest {
                     .verify(mockEventProbe)
                     .counterMetric(
                             HttpRetryStatusConfigFixtures.TEST_HTTP_RETRYER_SEND_FAIL_METRIC);
-            // No retry after final attempt, HttpConnectTimeoutException rethrown
 
-            assertTrue(thrownException instanceof HttpConnectTimeoutException);
+            // No retry after final attempt, Exception rethrown
+            if (exceptionToThrow.equals("ConnectTimeoutException")) {
+                assertTrue(thrownException instanceof ConnectTimeoutException);
+            } else if (exceptionToThrow.equals("SocketTimeoutException")) {
+                assertTrue(thrownException instanceof SocketTimeoutException);
+            }
         } else {
             // Send Fail - IOException
             verify(mockEventProbe)

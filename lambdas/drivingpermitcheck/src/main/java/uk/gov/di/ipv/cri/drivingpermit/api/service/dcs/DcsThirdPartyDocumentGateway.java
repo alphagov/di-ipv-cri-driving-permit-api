@@ -75,7 +75,7 @@ public class DcsThirdPartyDocumentGateway implements ThirdPartyAPIService {
         this.httpRetryer = httpRetryer;
         this.eventProbe = eventProbe;
 
-        this.defaultRequestConfig = new HttpRequestConfig().getDefaultRequestConfig();
+        this.defaultRequestConfig = new HttpRequestConfig().getDCSDefaultRequestConfig();
         this.httpRetryStatusConfig = new DcsHttpRetryStatusConfig();
     }
 

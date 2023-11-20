@@ -27,7 +27,8 @@ public class DvlaEndpointFactory {
         EventProbe eventProbe = serviceFactory.getEventProbe();
 
         // Same on all endpoints
-        RequestConfig defaultRequestConfig = new HttpRequestConfig().getDefaultRequestConfig();
+        RequestConfig defaultRequestConfig =
+                new HttpRequestConfig().getDVLAEndpointsRequestConfig();
 
         tokenRequestService =
                 new TokenRequestService(

@@ -2,6 +2,7 @@ package uk.gov.di.ipv.cri.drivingpermit.api.service;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,7 +10,7 @@ import uk.gov.di.ipv.cri.common.library.util.EventProbe;
 import uk.gov.di.ipv.cri.drivingpermit.api.util.SleepHelper;
 
 import java.io.IOException;
-import java.net.http.HttpConnectTimeoutException;
+import java.net.SocketTimeoutException;
 
 public class HttpRetryer {
 
@@ -70,10 +71,14 @@ public class HttpRetryer {
                         statusCode);
 
             } catch (IOException e) {
-                if (!(e instanceof HttpConnectTimeoutException)) {
-                    // Only HttpConnectTimeoutException can be retried, All other IOExceptions are
-                    // not
-                    LOGGER.warn("Failed to send request - reason {}", e.getMessage());
+                // Logic is "Not any of"
+                if (!((e instanceof ConnectTimeoutException)
+                        || (e instanceof SocketTimeoutException))) {
+                    // Only above exceptions retried, All other IOExceptions are not
+                    LOGGER.warn(
+                            "Failure when executing http request - {} reason {}",
+                            e.getClass().getCanonicalName(),
+                            e.getMessage());
                     eventProbe.counterMetric(httpRetryStatusConfig.httpRetryerSendFailMetric(e));
 
                     freeHttpConnectionBackToPool(httpResponse);
@@ -81,8 +86,7 @@ public class HttpRetryer {
                     throw e;
                 }
 
-                // For retries (tryCount>0) we want to rethrow only the last
-                // HttpConnectTimeoutException
+                // For retries (tryCount>0) we want to rethrow only the last Exception
                 if (tryCount < maxRetries) {
 
                     LOGGER.info(
@@ -102,7 +106,10 @@ public class HttpRetryer {
                             tryCount,
                             false);
 
-                    LOGGER.warn("Failed to send request - reason {}", e.getMessage());
+                    LOGGER.warn(
+                            "Failure when executing http request - {} reason {}",
+                            e.getClass().getCanonicalName(),
+                            e.getMessage());
                     eventProbe.counterMetric(httpRetryStatusConfig.httpRetryerSendFailMetric(e));
 
                     freeHttpConnectionBackToPool(httpResponse);
