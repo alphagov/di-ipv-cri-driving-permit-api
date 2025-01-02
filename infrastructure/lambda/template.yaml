@@ -2910,6 +2910,50 @@ Resources:
             Period: 60
             Stat: Sum
 
+  DVAThirdPartyApiErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${AWS::StackName}-DVAThirdPartyApiErrorAlarm"
+      AlarmDescription: !Sub "There has been a significant proportion of errors on the DVA third party endpoint ${SupportManualURL}"
+      ActionsEnabled: true
+      OKActions:
+        - !ImportValue platform-alarm-critical-alert-topic
+      AlarmActions:
+        - !ImportValue platform-alarm-critical-alert-topic
+      InsufficientDataActions: [ ]
+      EvaluationPeriods: 1
+      DatapointsToAlarm: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      Metrics:
+        - Id: errorThreshold
+          Label: errorThreshold
+          ReturnData: true
+          Expression: SUM([unexpectedStatus, errorResponse])
+        - Id: unexpectedStatus
+          ReturnData: false
+          MetricStat:
+            Metric:
+              Namespace: !Sub "${CriIdentifier}"
+              MetricName: dva_third_party_api_dva_endpoint_api_response_type_unexpected_http_status
+              Dimensions:
+                - Name: Service
+                  Value: "di-ipv-cri-dl-api-drivingpermitcheck"
+            Period: 60
+            Stat: Sum
+        - Id: errorResponse
+          ReturnData: false
+          MetricStat:
+            Metric:
+              Namespace: !Sub "${CriIdentifier}"
+              MetricName: dva_third_party_api_dva_endpoint_api_response_type_error
+              Dimensions:
+                - Name: Service
+                  Value: "di-ipv-cri-dl-api-drivingpermitcheck"
+            Period: 60
+            Stat: Sum
+
   DrivingPermitCheckingThrottleAlarm:
     Type: AWS::CloudWatch::Alarm
     Condition: "DeployAlarms"
