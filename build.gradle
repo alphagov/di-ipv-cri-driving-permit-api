@@ -59,7 +59,7 @@ ext {
 		httpcomponents_client_version      : "4.5.14",
 
 		// password renewal lambda
-		passay_version                     : "1.6.4",
+		passay_version                     : "1.6.6",
 
 		// Test
 		junit_version                      : "5.11.3",
