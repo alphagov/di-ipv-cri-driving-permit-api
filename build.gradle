@@ -7,7 +7,7 @@ plugins {
 	id "jacoco"
 	id "jacoco-report-aggregation"
 	id "com.diffplug.spotless" version "6.25.0"
-	id "nebula.lint" version "19.0.1"
+	id "nebula.lint" version "20.5.6"
 }
 
 defaultTasks 'clean', 'spotlessApply', 'build'
