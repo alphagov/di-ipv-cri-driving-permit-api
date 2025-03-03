@@ -43,7 +43,7 @@ ext {
 		// AWS  aws-lambda-java-libs see https://github.com/aws/aws-lambda-java-libs
 		aws_lambda_core_version            : "1.2.1",
 		// Jackson Addons/ needs to track the aws sdk version of jackson
-		jackson_version                    : "2.15.2",
+		jackson_version                    : "2.18.3",
 
 		// GSON used in DCS/DVA pathway remove with DCS removal rework to jackson
 		gson_version                       : "2.8.9",
