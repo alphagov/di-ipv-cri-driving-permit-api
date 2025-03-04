@@ -27,7 +27,7 @@ dependencies {
 			"org.mockito:mockito-core:${dependencyVersions.mockito_version}",
 			"uk.org.webcompere:system-stubs-core:${dependencyVersions.webcompere_version}",
 			"uk.org.webcompere:system-stubs-jupiter:${dependencyVersions.webcompere_version}",
-			"org.wiremock:wiremock:3.10.0"
+			"org.wiremock:wiremock:3.12.1"
 
 	testFixturesImplementation project(":lib"), project(":lib-dvla"),
 			"uk.gov.account:cri-common-lib:${dependencyVersions.cri_common_lib_version}",
